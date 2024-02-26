@@ -293,6 +293,16 @@ amd64_sysv_argregs(Ref r, int p[2])
 static Ref
 rarg(int ty, int *ni, int *ns)
 {
+	if (T.windows) {
+		int regs[] = {RCX, RDX, R8, R9};
+		(*ni)++;
+		(*ns) = (*ni);
+		if (KBASE(ty) == 0)
+			return TMP(regs[*ni - 1]);
+		else
+			return TMP(XMM0 + *ni - 1);
+	}
+	
 	if (KBASE(ty) == 0)
 		return TMP(amd64_sysv_rsave[(*ni)++]);
 	else
@@ -437,6 +447,27 @@ selpar(Fn *fn, Ins *i0, Ins *i1)
 	ac = alloc((i1-i0) * sizeof ac[0]);
 	curi = &insb[NIns];
 	ni = ns = 0;
+	
+	if (T.windows) {
+		bits b = 0;
+		int regs[] = {RCX, RDX, R8, R9};
+		for (i=i0; i<i1; i++, ni++) {
+			if (ni < 4) {
+				b |= BIT(regs[ni]);
+				emit(Ocopy, i->cls, i->to, TMP(regs[ni]), R);
+			}
+			else
+				emit(Oload, i->cls, i->to, SLOT(-((ni-4)*2+4)), R);
+		}
+		
+		if (fn->retty >= 0) {
+			typclass(&aret, &typ[fn->retty]);
+			fa = argsclass(i0, i1, ac, Opar, &aret, &env);
+		} else
+			fa = argsclass(i0, i1, ac, Opar, 0, &env);
+		fn->reg = b;
+		return fa | (((ni-4)*2+4)*4)<<12;
+	}
 
 	if (fn->retty >= 0) {
 		typclass(&aret, &typ[fn->retty]);

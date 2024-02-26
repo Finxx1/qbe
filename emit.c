@@ -208,6 +208,14 @@ macho_emitfin(FILE *f)
 	emitfin(f, sec);
 }
 
+void
+win_emitfin(FILE *f)
+{
+	static char *sec[3] = { ".rodata", ".rodata", ".rodata" };
+	
+	emitfin(f, sec);
+}
+
 static uint32_t *file;
 static uint nfile;
 static uint curfile;

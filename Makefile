@@ -40,6 +40,9 @@ config.h:
 			;;                             \
 		esac                                   \
 		;;                                     \
+	*NT*)                                  \
+		echo "#define Deftgt T_amd64_windows";\
+		;;                                 \
 	*)                                             \
 		case `uname -m` in                     \
 		*aarch64*|*arm64*)                     \
@@ -63,7 +66,7 @@ uninstall:
 	rm -f "$(DESTDIR)$(BINDIR)/qbe"
 
 clean:
-	rm -f *.o */*.o qbe
+	rm -f *.o */*.o qbe *.exe
 
 clean-gen: clean
 	rm -f config.h

@@ -44,3 +44,11 @@ Target T_amd64_apple = {
 	.assym = "_",
 	AMD64_COMMON
 };
+
+Target T_amd64_windows = {
+	.name = "amd64_windows",
+	.windows = 1,
+	.emitfin = win_emitfin,
+	.asloc = ".L",
+	AMD64_COMMON
+};
